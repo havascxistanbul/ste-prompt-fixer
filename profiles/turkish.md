@@ -5,20 +5,20 @@ For Turkish output. Removes AI-slop patterns, applies ste80 logic.
 ## Hard rules
 
 1. Max 15 words per sentence. One idea per sentence.
-2. Active verb over nominalization: "yapmak" not "gerceklesirmek", "kullanmak" not "istifade etmek".
-3. Kill Turkish passive abuse: avoid "-maktadır / -thatyr" / "sunulmakta" where a direct verb works.
+2. Active verb over nominalization: "yapmak" not "gerçekleştirmek", "kullanmak" not "istifade etmek".
+3. Kill Turkish passive abuse: avoid "-mektedir / -tedir / sunulmakta" where a direct verb works.
 4. Numbers as digits. Dates ISO (2026-10-23) or DD.MM.YYYY, never mixed. Units explicit.
 5. Technical terms stay in English: pull request, webhook, README, commit. No forced translation.
-6. One word, one meaning. Pick one Turkish term per concept, reuse it.
+6. One word, one meaning. Pick one Turkish term per concept, reuse it consistently.
 
 ## Banned AI-slop patterns (delete or rewrite)
 
-- "son derece", "oldukca", "buyuk olcude" → say the number or delete
-- "etkili bir sekilde" → how? say it
+- "son derece", "oldukça", "büyük ölçüde" → say the number or delete
+- "etkili bir şekilde" → how? say it
 - "Bu yazıda ... ele alınacaktır" → start with the answer
-- "Oncelikle / Ayrica / Dolayısıyla / Sonuc olarak" chains at every paragraph head
-- "dinamik", "yenilikci", "entegre cozum", "surulentiyoruz" buzzwords without proof
-- Long nested nominal clauses with 3+ genitive chains: break them
+- "Öncelikle / Ayrıca / Dolayısıyla / Sonuç olarak" chains at every paragraph head
+- "dinamik", "yenilikçi", "entegre çözüm" buzzwords without proof
+- Long nested genitive chains with 3+ suffixes → break them
 
 ## Tone
 

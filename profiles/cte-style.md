@@ -10,4 +10,27 @@ Descendant of Caterpillar Technical English thinking: procedures beat prose.
 6. Warnings before the dangerous step, not after.
 7. Max 20 words per sentence. Imperative mood.
 
-Use for: runbooks, migrations, CI setup, incident response, anything step-by-step.
+## Example structure
+
+```
+Purpose: [one-sentence summary of what this achieves]
+
+Prerequisites:
+- [tool or dependency 1]
+- [tool or dependency 2]
+
+Steps:
+1. [Verb] first action.
+2. [Verb] second action.
+3. [Verb] third action.
+
+Verification:
+- How to confirm success.
+
+Rollback (if step fails):
+- Recovery action, or fallback procedure.
+```
+
+## Use for
+
+Runbooks, migrations, CI setup, incident response, anything step-by-step.

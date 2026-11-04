@@ -1,6 +1,6 @@
 ---
 name: prompt-fixer
-description: Use when the user pastes a raw, vague, or bloated prompt and wants it improved before sending it to an LLM. Drafts one clearer prompt, then asks for approval. Triggers: "fix this prompt", "improve this", "bunu duzelt".
+description: Use when the user pastes a raw, vague, or bloated prompt and wants it improved before sending it to an LLM. Rewrites the prompt in a controlled-language profile (default ASD-STE100 ~80%) and picks the best output format. Triggers: "fix this prompt", "improve this", "bunu düzelt".
 ---
 
 # Prompt Fixer
@@ -26,3 +26,7 @@ Turkish requests default to `turkish` -> `profiles/turkish.md`.
 - `globish` -> `profiles/globish.md` (non-native readers)
 - `cte` -> `profiles/cte-style.md` (procedures, maintenance-style)
 - `turkish` -> `profiles/turkish.md` (Turkish requests)
+
+## Format ladder
+
+See the full format ladder in `prompts/prompt-fixer.md`.

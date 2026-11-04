@@ -4,94 +4,116 @@ An agent skill that fixes sloppy prompts. It rewrites them in controlled-English
 
 Inspired by Andrej Karpathy's X post (Oct 2, 2026) on understanding LLM outputs.
 
-Topics: `llm` `prompt-engineering` `claude-skills` `asd-ste100` `agents` `agent-skills` `mcp` `technical-writing` `turkish-llm`
+## What It Does
 
-## Why
+You paste a messy, vague, or bloated prompt. This tool rewrites it into one clear prompt, then asks for your approval before you send anything to an LLM.
 
-Models write long, padded answers by default. Controlled languages fix that: short sentences, fixed vocabulary, no ambiguity. This skill wraps that idea so any agent that reads `SKILL.md` (Claude Code, Codex, Cursor, Amp, Copilot) can apply it.
+It does **not** answer the task inside the prompt — it only improves the prompt itself.
 
-Bonus: `lint/ste-lint.md` turns the same rules into a linter spec, and `tests/fixtures.md` provides seed prompts for regression tests.
+## Style Profiles
 
-## Install
+| Profile | When to use | Key rules |
+|---|---|---|
+| **ste80** (default) | General-purpose English prompts | Max 15 words/sentence, active voice, no filler |
+| **plain** | Public audiences, non-expert readers | Everyday words over jargon, contractions OK |
+| **globish** | Multilingual teams, global docs | 1500-word ceiling, no idioms |
+| **turkish** (auto for Turkish input) | Turkish docs and customer prompts | Active verbs, kills passive abuse (-dır), keeps tech terms in English |
+| **cte** | Procedures, runbooks, migrations | Purpose → prerequisites → steps → verification → rollback |
 
-Claude Code: copy `SKILL.md` to `~/.claude/skills/prompt-fixer/SKILL.md`.
+Turkish-language input automatically selects the `turkish` profile.
 
-Cursor: paste the body into `.cursor/rules/prompt-fixer.mdc`.
+## Format Ladder
 
-Any agent following the agentskills.io format: place the folder in its skills path.
+| Format | When to use |
+|---|---|
+| **Plain text** (default) | Facts, comparisons, explanations |
+| **Mermaid diagram / SVG** | Relations, flows, architectures, dependencies |
+| **Single-file HTML** | Dense, explorable content — specs, style guides |
 
 ## Structure
 
 ```
-SKILL.md                 flow and profile selection; points at the contract
-prompts/
-  prompt-fixer.md        five-part output contract, loaded at runtime
-harness/
-  prompt_loader.py       load_prompt("prompt-fixer")
-  run_tests.py           fixture checks, including the contract cases
-.github/workflows/
-  harness.yml            recorded-mode harness on pull requests
-profiles/                style packs, one standard per file
-  ste80.md               ASD-STE100, 80% strict (default)
-  plain-english.md       public plain-language style
-  globish.md             1500-word ceiling, non-native readers
-  cte-style.md           procedure-first service manual style
-  turkish.md             Turkish humanizer + STE hybrid (default for Turkish)
-conventions/             context packs
-  agents-md.md           align prompts with repo AGENTS.md rules
-  llms-txt.md            suggest /llms.txt for site-targeted prompts
-lint/
-  ste-lint.md            linter-style rules + regex checks for LLM output
-tests/
-  fixtures.md            bad prompt -> fixed prompt seed set (goal: 50)
-examples/
-  before-after.md        one fixed prompt per profile
+SKILL.md core flow: intent -> rewrite -> format
+profiles/ style packs, one standard per file
+ste80.md ASD-STE100, 80% strict (default)
+plain-english.md public plain-language style
+globish.md 1500-word ceiling, non-native readers
+cte-style.md procedure-first service manual style
+turkish.md Turkish humanizer + STE hybrid
+conventions/ context packs
+agents-md.md align prompts with repo AGENTS.md rules
+llms-txt.md suggest /llms.txt for site-targeted prompts
+lint/ ste-lint.md linter-style rules + regex checks for LLM output
+tests/ fixtures.md bad prompt -> fixed prompt seed set (goal: 50)
+examples/ before-after.md one fixed prompt per profile
 ```
-
-Turkish requests use `profiles/turkish.md` by default. The output contract is `prompts/prompt-fixer.md`. `harness/prompt_loader.py` loads it at runtime; the text is not copied into code. A draft block is at most 150 words, and the rest of the reply is at most 150 words.
 
 The model reads a profile file only when that profile is selected. Keeps context small.
 
-## Format ladder
+## Examples
 
-```mermaid
-flowchart LR
-    A[Raw prompt] --> B[Detect intent]
-    B --> C[Apply profile: ste80 default]
-    C --> D{Pick format}
-    D -->|facts| E[Plain text]
-    D -->|relations, flows| F[Mermaid / SVG]
-    D -->|dense, explorable| G[Single-file HTML]
-```
+### Input (sloppy English)
+> "You are a senior dev please explain microservices vs monolith thanks urgent"
 
-## Example
+### Output (ste80)
+```text
+Task: Compare microservices vs monolith architectures.
 
-Input:
-
-> you are a senior dev please explain microservices vs monolith thanks urgent
-
-Output (ste80):
-
-```
-Describe microservices vs monolith.
 Audience: a team choosing a stack for a new project.
-Give one table, max 6 rows: latency, deploy speed, debugging, scaling, team size, cost.
-End with a 3-sentence verdict: when to choose each.
-Max 300 words.
+
+Requirements:
+- Provide one table, max 6 rows: latency, deploy speed, debugging, scaling, team size, cost.
+- End with a 3-sentence verdict: when to choose each.
+
+Constraints:
+- Max 300 words.
+- Active voice throughout.
+- One sentence, one idea.
+
+Format: plain text
 ```
 
-## ste-lint quick check
+### Input (Turkish)
+> "Bana REST API nedir anlat çok detaylı olsun lütfen"
 
-```bash
-grep -EIn "(worth noting|delve|tapestry|ever-evolving|in today's fast-paced world|game-changer)" docs/*.md && exit 1
+### Output (turkish)
+```text
+Görev: REST API kavramını Türkçe açıkla.
+
+Kitle: yazılımcı adayları ve junior geliştiriciler.
+
+Gereksinimler:
+- HTTP metodlarını (GET, POST, PUT, DELETE) madde madde açıkla.
+- Her metot için bir örnek URL ver.
+- Stateless kavramını 2 cümleyle tanımla.
+
+Kısıtlamalar:
+- 400 kelimeyi geçme.
+- Teknik terimleri Türkçe çevirme: endpoint, payload, header, status code.
+- Her cümle bir fikir olsun.
+
+Format: plain text
 ```
 
-## Credits
+## Install
 
-- Andrej Karpathy for the ASD-STE100 prompting idea
-- ASD for the STE100 specification
-- Caterpillar, IBM, GM for decades of controlled-language work
+Claude Code: copy `SKILL.md` to `~/.claude/skills/prompt-fixer/SKILL.md`.
+Cursor: paste the body into `.cursor/rules/prompt-fixer.mdc`.
+Any agent following the agentskills.io format: place the folder in its skills path.
+
+## Linting
+
+`lint/ste-lint.md` contains linter-style rules for checking any output against AI-slop, sentence length, passive voice, and more.
+
+## Author
+
+**Mehmet Turac**
+- Email: mehmetturac@gmail.com
+- GitHub: [mturac](https://github.com/mturac)
+- Organization: [havascxistanbul](https://github.com/havascxistanbul)
+
+Built with Cursor Agent (Oct 2026), inspired by Karpathy's post on understanding LLM outputs.
 
 ## License
 
-MIT
+MIT © 2026 Mehmet Turac
